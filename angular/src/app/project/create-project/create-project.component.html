@@ -1,0 +1,83 @@
+<div [@routerTransition]>
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-6">
+          <h1>{{ "Create Project" | localize }}</h1>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="content px-2" [busy]="isSaving">
+    <div class="container-fluid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card mb-0 mt-1">
+            <div class="card-body">
+              <form #createTasksForm="ngForm">
+                <div class="row">
+                  <div class="col-6 border-right">
+                    <h3>Asna Information</h3>
+                    <hr />
+                    <div class="form-group">
+                      <label for="sel1">Enter token</label>
+                      <input type="text" class="form-control" [(ngModel)]="asanaToken" name="token" id=""
+                        placeholder="enter token here">
+                    </div>
+                    <div class="form-group">
+                      <label for="sel1">Select workspace</label>
+                      <button [disabled]="!asanaToken" type="button" (click)="refreshAsanaWorkspaces()"
+                        class="btn btn-default" style="float: right;">Refresh</button>
+                      <select (change)="refrehAsanaTasks()" [(ngModel)]="workspace" name="asanaWorkspace"
+                        class="form-control" id="sel1">
+                        <option *ngFor="let item of asanaWorkspaces" [value]="item.key">{{item.value}}</option>
+                      </select>
+
+                    </div>
+                    <div class="form-group">
+                      <label for="sel1">Select project</label>
+                      <select class="form-control" name="asanaProjects" [(ngModel)]="asanaProjectId" id="sel1">
+                        <option *ngFor="let item of asanaProjects" [value]="item.key">{{item.value}}</option>
+                      </select>
+                    </div>
+                    <button (click)="save(false)" type="button" class="btn btn-primary">Sync project to DevOps</button>
+                  </div>
+                  <div class="col-6 border-left">
+                    <h3>DevOps Information</h3>
+                    <hr />
+                    <div class="form-group">
+                      <div class="form-group">
+                        <label for="sel1">Enter devOps token</label>
+                        <input type="text" class="form-control" [(ngModel)]="devopsToken" name="devOpsToken" id=""
+                          placeholder="enter token here">
+                      </div>
+
+                      <div class="form-group">
+                        <label for="sel1">Enter organization</label>
+                        <input type="text" class="form-control" [(ngModel)]="devopsOrganization" name="organization"
+                          id="" placeholder="enter organization here">
+                      </div>
+
+                      <div class="form-group">
+                        <label for="sel1">Select roject</label>
+                        <button [disabled]="!devopsToken" type="button" (click)="refreshDevOpsProjects()"
+                          class="btn btn-default" style="float: right;">Refresh</button>
+                        <select class="form-control" id="sel1" name="devOpsProjects" [(ngModel)]="devOpsProjectId">
+                          <option *ngFor="let item of devopsProjects" [value]="item.key">{{item.value}}</option>
+                        </select>
+                      </div>
+
+                    </div>
+                    <button [disabled]="createTasksForm.invalid" (click)="save(true)" type="button"
+                      style="float: right;" class="btn btn-primary">Sync project to Asana</button>
+                  </div>
+                </div>
+              </form>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
