@@ -1,6 +1,6 @@
-import { Component, Injector, OnInit } from '@angular/core';
+import { Component, Injector } from '@angular/core';
 import { finalize } from 'rxjs/operators';
-import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { BsModalService } from 'ngx-bootstrap/modal';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import {
   PagedListingComponentBase,
@@ -8,19 +8,11 @@ import {
 } from 'shared/paged-listing-component-base';
 import {
   UserServiceProxy,
-  UserDto,
-  UserDtoPagedResultDto,
   ProjectDto,
-  ProjectServiceProxy
+  ProjectServiceProxy,
+  ProjectListOutput
 } from '@shared/service-proxies/service-proxies';
-import { CreateUserDialogComponent } from '@app/users/create-user/create-user-dialog.component';
-import { EditUserDialogComponent } from '@app/users/edit-user/edit-user-dialog.component';
-import { ResetPasswordDialogComponent } from '@app/users/reset-password/reset-password.component';
-import { CreateProjectComponent } from './create-project/create-project.component';
-import { Route } from '@angular/compiler/src/core';
 import { Router } from '@angular/router';
-
-
 
 class PagedUsersRequestDto extends PagedRequestDto {
   keyword: string;
@@ -33,7 +25,7 @@ class PagedUsersRequestDto extends PagedRequestDto {
 })
 export class ProjectComponent extends PagedListingComponentBase<ProjectDto> {
 
-  projects: ProjectDto[] = [];
+  projects: ProjectListOutput[] = [];
 
   constructor(
     injector: Injector,
@@ -55,7 +47,7 @@ export class ProjectComponent extends PagedListingComponentBase<ProjectDto> {
     pageNumber: number,
     finishedCallback: Function
   ): void {
-    this._projectService.getAll('', request.skipCount, request.maxResultCount)
+    this._projectService.getAll('', '', request.skipCount, request.maxResultCount)
       .pipe(
         finalize(() => {
           finishedCallback();

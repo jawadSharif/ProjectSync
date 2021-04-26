@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyCompany.DevOpsProject.Dto
+namespace MyCompany.Managers.Dto
 {
     public class BaseDevOps<T> where T: class
     {

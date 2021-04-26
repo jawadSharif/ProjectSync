@@ -1,16 +1,13 @@
 ﻿using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
-using Abp.Extensions;
 using Microsoft.EntityFrameworkCore;
-using MyCompany.AsanaProjects.Dto;
+using MyCompany.AsanaProjects;
+using MyCompany.Managers.Dto;
 using MyCompany.DevOpsProject;
-using MyCompany.DevOpsProject.Dto;
-using MyCompany.Features;
 using MyCompany.Projects.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MyCompany.Projects
@@ -30,26 +27,58 @@ namespace MyCompany.Projects
             _devOpsAppService = devOpsAppService;
         }
 
-        public async Task<PagedResultDto<ProjectDto>> GetAll(ProjectListOutput input)
+        public async Task<PagedResultDto<ProjectListOutput>> GetAll(ProjectListInput input)
         {
-            var query = _projectRepository.GetAll().Select(x => new ProjectDto()
+            var query = _projectRepository.GetAll();
+            var projectListQuery = _projectRepository.GetAll().Select(x => new ProjectListOutput()
             {
                 Id = x.Id,
-                Workspace = x.Workspace,
-                ProjectTitle = x.ProjectTitle,
-                TaskTitle = x.TaskTitle,
-                TasksDescription = x.TasksDescription,
-                AsanaId = x.AsanaId,
-                Type = x.Type
+                AsanaWorkspace = x.AsanaWorkspace,
+                AsanaProject = x.AsanaProject,
+                AsanaProjectId = x.AsanaProjectId,
+                AsanaToken = x.AsanaToken,
+                AsanaWorkSpaceId = x.AsanaWorkSpaceId,
+                DevOpsOrganization = x.DevOpsOrganization,
+                DevOpsProjectTitle = x.DevOpsProjectTitle,
+                DevOpsToken = x.DevOpsToken,
+                UpdateAsana = x.UpdateAsana,
+                UpdateDevOps = x.UpdateDevOps
             });
-            var count = await query.CountAsync();
-            var items = await query.Skip(input.SkipCount).Take(input.MaxResultCount).ToListAsync();
-            return new PagedResultDto<ProjectDto>()
+
+            var count = await projectListQuery.CountAsync();
+            var items = await projectListQuery.Skip(input.SkipCount).Take(input.MaxResultCount).ToListAsync();
+
+            return new PagedResultDto<ProjectListOutput>()
             {
                 Items = items,
                 TotalCount = count
             };
         }
+
+        public async Task CreateOrEditProject(ProjectDto input)
+        {
+            if (input.Id.HasValue)
+            {
+                await UpdateAsync(input);
+            }
+            else
+            {
+                await CreateAsync(input);
+            }
+        }
+
+        private async Task CreateAsync(ProjectDto input)
+        {
+            var project = ObjectMapper.Map<Project>(input);
+            await _projectRepository.InsertAsync(project);
+        }
+
+        private async Task UpdateAsync(ProjectDto input)
+        {
+            var project = ObjectMapper.Map<Project>(input);
+            await _projectRepository.UpdateAsync(project);
+        }
+
 
         public async Task Create(CreateProjectDto input)
         {
@@ -60,7 +89,7 @@ namespace MyCompany.Projects
             }
             else
             {
-                await SaveTaskForDevOps(input);
+                //await SaveTaskForDevOps(input);
             }
         }
 
@@ -76,7 +105,7 @@ namespace MyCompany.Projects
             };
             var devOpsTasks = await _devOpsAppService.GetProjectWorkItems(devOpsWorkItemsInput);
 
-            devOpsTasks = devOpsTasks.Where(a => !query.Any(x => x.TaskTitle == a.fields.SystemTitle)).ToList();
+            //devOpsTasks = devOpsTasks.Where(a => !query.Any(x => x.TaskTitle == a.fields.SystemTitle)).ToList();
 
             var asanaCreateTaskDtoRoot = new CreateTaskDtoRoot()
             {
@@ -88,21 +117,25 @@ namespace MyCompany.Projects
 
             foreach (var a in devOpsTasks)
             {
-                project.Type = "Asana";
-                project.ProjectTitle = input.AsanaProjectName;
-                project.TaskTitle = asanaTasks.name = a.fields.SystemTitle;
-                project.TasksDescription = asanaTasks.notes = StripHTML(a.fields.SystemDescription);
-                project.Workspace = asanaTasks.workspace = input.AsanaWorkSpace;
+                //project.Type = "Asana";
+                //project.ProjectTitle = input.AsanaProjectName;
+                //project.TaskTitle = 
+                //project.TasksDescription = 
+                //project.Workspace = 
+                asanaTasks.name = a.fields.SystemTitle;
+                //asanaTasks.notes = StripHTML(a.fields.SystemDescription);
+                asanaTasks.workspace = input.AsanaWorkSpace;
                 asanaTasks.projects = new List<string>() { input.AsanaProjectId };
                 asanaCreateTaskDtoRoot.task.data = asanaTasks;
 
-                await SaveProjectInDb(project);
+                //await SaveProjectInDb(project);
                 await _asanaAppService.CreateTaskInProject(asanaCreateTaskDtoRoot);
 
             }
 
         }
 
+        /*
         private async Task SaveTaskForDevOps(CreateProjectDto input)
         {
             var query = _projectRepository.GetAll();
@@ -114,7 +147,7 @@ namespace MyCompany.Projects
             };
 
             var asanaTasks = await _asanaAppService.GetAllTasksInProject(asanaTaskInput);
-            asanaTasks = asanaTasks.Where(a => !query.Any(x => x.TaskTitle == a.Value)).ToList();
+            //asanaTasks = asanaTasks.Where(a => !query.Any(x => x.TaskTitle == a.Value)).ToList();
 
             foreach (var item in asanaTasks)
             {
@@ -138,10 +171,10 @@ namespace MyCompany.Projects
 
                 var project = new ProjectDto()
                 {
-                    ProjectTitle = input.DevOpsProject,
-                    TaskTitle = item.Value,
-                    Type = "DevOps",
-                    Workspace = input.DevOpsOrganization,
+                    //ProjectTitle = input.DevOpsProject,
+                    //TaskTitle = item.Value,
+                    //Type = "DevOps",
+                    //Workspace = input.DevOpsOrganization,
                 };
 
                 await SaveProjectInDb(project);
@@ -150,23 +183,25 @@ namespace MyCompany.Projects
 
         private async Task SaveProjectInDb(ProjectDto input)
         {
-            var project = new Project()
-            {
-                TaskTitle = input.TaskTitle,
-                TasksDescription = input.TasksDescription,
-                Type = input.Type,
-                Workspace = input.Workspace,
-                ProjectTitle = input.ProjectTitle,
-                AsanaId = input.AsanaId ?? string.Empty,
-                DevOpsId = input.DevOpsId,
-            };
-            await _projectRepository.InsertAsync(project);
-            await CurrentUnitOfWork.SaveChangesAsync();
+            //var project = new Project()
+            //{
+            //    TaskTitle = input.TaskTitle,
+            //    TasksDescription = input.TasksDescription,
+            //    Type = input.Type,
+            //    Workspace = input.Workspace,
+            //    ProjectTitle = input.ProjectTitle,
+            //    AsanaId = input.AsanaId ?? string.Empty,
+            //    DevOpsId = input.DevOpsId,
+            //};
+            //await _projectRepository.InsertAsync(project);
+            //await CurrentUnitOfWork.SaveChangesAsync();
         }
+
 
         public static string StripHTML(string input)
         {
             return input.IsNullOrEmpty() ? string.Empty : Regex.Replace(input, "<.*?>", String.Empty);
         }
+        */
     }
 }

@@ -709,13 +709,16 @@ export class ProjectServiceProxy {
     }
 
     /**
+     * @param filter (optional) 
      * @param sorting (optional) 
      * @param skipCount (optional) 
      * @param maxResultCount (optional) 
      * @return Success
      */
-    getAll(sorting: string | null | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<ProjectDtoPagedResultDto> {
+    getAll(filter: string | null | undefined, sorting: string | null | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<ProjectListOutputPagedResultDto> {
         let url_ = this.baseUrl + "/api/services/app/Project/GetAll?";
+        if (filter !== undefined)
+            url_ += "Filter=" + encodeURIComponent("" + filter) + "&";
         if (sorting !== undefined)
             url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
         if (skipCount === null)
@@ -743,14 +746,14 @@ export class ProjectServiceProxy {
                 try {
                     return this.processGetAll(<any>response_);
                 } catch (e) {
-                    return <Observable<ProjectDtoPagedResultDto>><any>_observableThrow(e);
+                    return <Observable<ProjectListOutputPagedResultDto>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<ProjectDtoPagedResultDto>><any>_observableThrow(response_);
+                return <Observable<ProjectListOutputPagedResultDto>><any>_observableThrow(response_);
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<ProjectDtoPagedResultDto> {
+    protected processGetAll(response: HttpResponseBase): Observable<ProjectListOutputPagedResultDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -761,7 +764,7 @@ export class ProjectServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ProjectDtoPagedResultDto.fromJS(resultData200);
+            result200 = ProjectListOutputPagedResultDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -769,7 +772,59 @@ export class ProjectServiceProxy {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<ProjectDtoPagedResultDto>(<any>null);
+        return _observableOf<ProjectListOutputPagedResultDto>(<any>null);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    createOrEditProject(body: ProjectDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/Project/CreateOrEditProject";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json-patch+json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateOrEditProject(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateOrEditProject(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processCreateOrEditProject(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
     }
 
     /**
@@ -3149,18 +3204,20 @@ export interface ICreateDevOpsTaskDto {
     data: CreateDevOpsTaskBodyDto[] | undefined;
 }
 
-export class ProjectDto implements IProjectDto {
-    tenantId: number | undefined;
-    workspace: string | undefined;
-    projectTitle: string | undefined;
-    taskTitle: string | undefined;
-    tasksDescription: string | undefined;
-    type: string | undefined;
-    asanaId: string | undefined;
-    devOpsId: number | undefined;
+export class ProjectListOutput implements IProjectListOutput {
+    asanaToken: string | undefined;
+    asanaWorkspace: string | undefined;
+    asanaWorkSpaceId: string | undefined;
+    asanaProject: string | undefined;
+    asanaProjectId: string | undefined;
+    devOpsToken: string | undefined;
+    devOpsOrganization: string | undefined;
+    devOpsProjectTitle: string | undefined;
+    updateAsana: boolean;
+    updateDevOps: boolean;
     id: string;
 
-    constructor(data?: IProjectDto) {
+    constructor(data?: IProjectListOutput) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3171,64 +3228,70 @@ export class ProjectDto implements IProjectDto {
 
     init(_data?: any) {
         if (_data) {
-            this.tenantId = _data["tenantId"];
-            this.workspace = _data["workspace"];
-            this.projectTitle = _data["projectTitle"];
-            this.taskTitle = _data["taskTitle"];
-            this.tasksDescription = _data["tasksDescription"];
-            this.type = _data["type"];
-            this.asanaId = _data["asanaId"];
-            this.devOpsId = _data["devOpsId"];
+            this.asanaToken = _data["asanaToken"];
+            this.asanaWorkspace = _data["asanaWorkspace"];
+            this.asanaWorkSpaceId = _data["asanaWorkSpaceId"];
+            this.asanaProject = _data["asanaProject"];
+            this.asanaProjectId = _data["asanaProjectId"];
+            this.devOpsToken = _data["devOpsToken"];
+            this.devOpsOrganization = _data["devOpsOrganization"];
+            this.devOpsProjectTitle = _data["devOpsProjectTitle"];
+            this.updateAsana = _data["updateAsana"];
+            this.updateDevOps = _data["updateDevOps"];
             this.id = _data["id"];
         }
     }
 
-    static fromJS(data: any): ProjectDto {
+    static fromJS(data: any): ProjectListOutput {
         data = typeof data === 'object' ? data : {};
-        let result = new ProjectDto();
+        let result = new ProjectListOutput();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["tenantId"] = this.tenantId;
-        data["workspace"] = this.workspace;
-        data["projectTitle"] = this.projectTitle;
-        data["taskTitle"] = this.taskTitle;
-        data["tasksDescription"] = this.tasksDescription;
-        data["type"] = this.type;
-        data["asanaId"] = this.asanaId;
-        data["devOpsId"] = this.devOpsId;
+        data["asanaToken"] = this.asanaToken;
+        data["asanaWorkspace"] = this.asanaWorkspace;
+        data["asanaWorkSpaceId"] = this.asanaWorkSpaceId;
+        data["asanaProject"] = this.asanaProject;
+        data["asanaProjectId"] = this.asanaProjectId;
+        data["devOpsToken"] = this.devOpsToken;
+        data["devOpsOrganization"] = this.devOpsOrganization;
+        data["devOpsProjectTitle"] = this.devOpsProjectTitle;
+        data["updateAsana"] = this.updateAsana;
+        data["updateDevOps"] = this.updateDevOps;
         data["id"] = this.id;
         return data; 
     }
 
-    clone(): ProjectDto {
+    clone(): ProjectListOutput {
         const json = this.toJSON();
-        let result = new ProjectDto();
+        let result = new ProjectListOutput();
         result.init(json);
         return result;
     }
 }
 
-export interface IProjectDto {
-    tenantId: number | undefined;
-    workspace: string | undefined;
-    projectTitle: string | undefined;
-    taskTitle: string | undefined;
-    tasksDescription: string | undefined;
-    type: string | undefined;
-    asanaId: string | undefined;
-    devOpsId: number | undefined;
+export interface IProjectListOutput {
+    asanaToken: string | undefined;
+    asanaWorkspace: string | undefined;
+    asanaWorkSpaceId: string | undefined;
+    asanaProject: string | undefined;
+    asanaProjectId: string | undefined;
+    devOpsToken: string | undefined;
+    devOpsOrganization: string | undefined;
+    devOpsProjectTitle: string | undefined;
+    updateAsana: boolean;
+    updateDevOps: boolean;
     id: string;
 }
 
-export class ProjectDtoPagedResultDto implements IProjectDtoPagedResultDto {
+export class ProjectListOutputPagedResultDto implements IProjectListOutputPagedResultDto {
     totalCount: number;
-    items: ProjectDto[] | undefined;
+    items: ProjectListOutput[] | undefined;
 
-    constructor(data?: IProjectDtoPagedResultDto) {
+    constructor(data?: IProjectListOutputPagedResultDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3243,14 +3306,14 @@ export class ProjectDtoPagedResultDto implements IProjectDtoPagedResultDto {
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items.push(ProjectDto.fromJS(item));
+                    this.items.push(ProjectListOutput.fromJS(item));
             }
         }
     }
 
-    static fromJS(data: any): ProjectDtoPagedResultDto {
+    static fromJS(data: any): ProjectListOutputPagedResultDto {
         data = typeof data === 'object' ? data : {};
-        let result = new ProjectDtoPagedResultDto();
+        let result = new ProjectListOutputPagedResultDto();
         result.init(data);
         return result;
     }
@@ -3266,17 +3329,104 @@ export class ProjectDtoPagedResultDto implements IProjectDtoPagedResultDto {
         return data; 
     }
 
-    clone(): ProjectDtoPagedResultDto {
+    clone(): ProjectListOutputPagedResultDto {
         const json = this.toJSON();
-        let result = new ProjectDtoPagedResultDto();
+        let result = new ProjectListOutputPagedResultDto();
         result.init(json);
         return result;
     }
 }
 
-export interface IProjectDtoPagedResultDto {
+export interface IProjectListOutputPagedResultDto {
     totalCount: number;
-    items: ProjectDto[] | undefined;
+    items: ProjectListOutput[] | undefined;
+}
+
+export class ProjectDto implements IProjectDto {
+    asanaToken: string | undefined;
+    asanaWorkspace: string | undefined;
+    asanaWorkSpaceId: string | undefined;
+    asanaProject: string | undefined;
+    asanaProjectId: string | undefined;
+    devOpsToken: string | undefined;
+    devOpsOrganization: string | undefined;
+    devOpsProjectTitle: string | undefined;
+    devOpsProjectId: string | undefined;
+    updateAsana: boolean;
+    updateDevOps: boolean;
+    id: string | undefined;
+
+    constructor(data?: IProjectDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.asanaToken = _data["asanaToken"];
+            this.asanaWorkspace = _data["asanaWorkspace"];
+            this.asanaWorkSpaceId = _data["asanaWorkSpaceId"];
+            this.asanaProject = _data["asanaProject"];
+            this.asanaProjectId = _data["asanaProjectId"];
+            this.devOpsToken = _data["devOpsToken"];
+            this.devOpsOrganization = _data["devOpsOrganization"];
+            this.devOpsProjectTitle = _data["devOpsProjectTitle"];
+            this.devOpsProjectId = _data["devOpsProjectId"];
+            this.updateAsana = _data["updateAsana"];
+            this.updateDevOps = _data["updateDevOps"];
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): ProjectDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProjectDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["asanaToken"] = this.asanaToken;
+        data["asanaWorkspace"] = this.asanaWorkspace;
+        data["asanaWorkSpaceId"] = this.asanaWorkSpaceId;
+        data["asanaProject"] = this.asanaProject;
+        data["asanaProjectId"] = this.asanaProjectId;
+        data["devOpsToken"] = this.devOpsToken;
+        data["devOpsOrganization"] = this.devOpsOrganization;
+        data["devOpsProjectTitle"] = this.devOpsProjectTitle;
+        data["devOpsProjectId"] = this.devOpsProjectId;
+        data["updateAsana"] = this.updateAsana;
+        data["updateDevOps"] = this.updateDevOps;
+        data["id"] = this.id;
+        return data; 
+    }
+
+    clone(): ProjectDto {
+        const json = this.toJSON();
+        let result = new ProjectDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IProjectDto {
+    asanaToken: string | undefined;
+    asanaWorkspace: string | undefined;
+    asanaWorkSpaceId: string | undefined;
+    asanaProject: string | undefined;
+    asanaProjectId: string | undefined;
+    devOpsToken: string | undefined;
+    devOpsOrganization: string | undefined;
+    devOpsProjectTitle: string | undefined;
+    devOpsProjectId: string | undefined;
+    updateAsana: boolean;
+    updateDevOps: boolean;
+    id: string | undefined;
 }
 
 export class CreateProjectDto implements ICreateProjectDto {

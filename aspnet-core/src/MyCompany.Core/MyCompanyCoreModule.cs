@@ -1,6 +1,7 @@
 ﻿using Abp.Localization;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
+using Abp.Threading.BackgroundWorkers;
 using Abp.Timing;
 using Abp.Zero;
 using Abp.Zero.Configuration;
@@ -9,6 +10,7 @@ using MyCompany.Authorization.Users;
 using MyCompany.Configuration;
 using MyCompany.Localization;
 using MyCompany.MultiTenancy;
+using MyCompany.Projects;
 using MyCompany.Timing;
 
 namespace MyCompany
@@ -46,6 +48,8 @@ namespace MyCompany
         public override void PostInitialize()
         {
             IocManager.Resolve<AppTimes>().StartupTime = Clock.Now;
+            var workManager = IocManager.Resolve<IBackgroundWorkerManager>();
+            workManager.Add(IocManager.Resolve<SyncProjectBackgroundWorker>());
         }
     }
 }

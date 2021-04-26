@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyCompany.AsanaProjects.Dto
+namespace MyCompany.Managers.Dto
 {
-    public class BasicToken
+    public class AsanaTaskInput : BasicToken
     {
-        public string Token { get; set; }
+        public string ProjectId { get; set; }
     }
 }

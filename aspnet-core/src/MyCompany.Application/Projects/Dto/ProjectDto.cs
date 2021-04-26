@@ -8,15 +8,18 @@ using System.Threading.Tasks;
 
 namespace MyCompany.Projects.Dto
 {
-   public class ProjectDto :EntityDto<Guid>
+    public class ProjectDto : NullableIdDto<Guid>
     {
-        public int? TenantId { get; set; }
-        public string Workspace { get; set; }
-        public string ProjectTitle { get; set; }
-        public string TaskTitle { get; set; }
-        public string TasksDescription { get; set; }
-        public string Type { get; set; }
-        public string AsanaId { get; set; }
-        public int? DevOpsId { get; set; }
+        public string AsanaToken { get; set; }
+        public string AsanaWorkspace { get; set; }
+        public string AsanaWorkSpaceId { get; set; }
+        public string AsanaProject { get; set; }
+        public string AsanaProjectId { get; set; }
+        public string DevOpsToken { get; set; }
+        public string DevOpsOrganization { get; set; }
+        public string DevOpsProjectTitle { get; set; }
+        public string DevOpsProjectId { get; set; }
+        public bool UpdateAsana { get; set; }
+        public bool UpdateDevOps { get; set; }
     }
 }

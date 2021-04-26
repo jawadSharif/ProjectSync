@@ -1,14 +1,13 @@
-﻿using MyCompany.DevOpsProject.Dto;
+﻿using Abp.Domain.Services;
+using MyCompany.DevOpsProject.Dto;
 using MyCompany.Managers.Dto;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace MyCompany.DevOpsProject
+namespace MyCompany.Managers
 {
-    public interface IDevOpsAppService
+    public interface IDevOpsManager : IDomainService
     {
         Tuple<string> AccessToken(string input);
         Task<List<KeyValuePair<string, string>>> GetProjects(GetProjectsInput input);

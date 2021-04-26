@@ -2,17 +2,23 @@
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using MyCompany.Authorization;
+using MyCompany.Projects;
+using MyCompany.Projects.Dto;
 
 namespace MyCompany
 {
     [DependsOn(
-        typeof(MyCompanyCoreModule), 
+        typeof(MyCompanyCoreModule),
         typeof(AbpAutoMapperModule))]
     public class MyCompanyApplicationModule : AbpModule
     {
         public override void PreInitialize()
         {
             Configuration.Authorization.Providers.Add<MyCompanyAuthorizationProvider>();
+            Configuration.Modules.AbpAutoMapper().Configurators.Add(config =>
+            {
+                config.CreateMap<ProjectDto, Project>();
+            });
         }
 
         public override void Initialize()
