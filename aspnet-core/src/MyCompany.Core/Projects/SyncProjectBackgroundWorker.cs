@@ -35,14 +35,14 @@ namespace MyCompany.Projects
             _projectRepository = projectRepository;
             _asanaManager = asanaManager;
             _devOpsManager = devOpsManager;
-            Timer.Period = 55000; //5 seconds (good for tests, but normally will be more)
+            Timer.Period = 300000; //5 mints (good for tests, but normally will be more)
         }
 
         [UnitOfWork]
         protected override void DoWork()
         {
-            var project = AsyncHelper.RunSync(() => _projectRepository.GetAll().FirstAsync());
-            if (project != null)
+            var projects = AsyncHelper.RunSync(() => _projectRepository.GetAll().ToListAsync());
+            foreach(var project in projects)
             {
                 var utcNow = Clock.Now.ToUniversalTime();
                 var asanaBaseToken = new AsanaTaskInput()
