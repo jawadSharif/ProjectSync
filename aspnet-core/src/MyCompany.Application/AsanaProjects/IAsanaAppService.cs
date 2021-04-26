@@ -10,7 +10,7 @@ namespace MyCompany.AsanaProjects
 
         Task<List<KeyValuePair<string, string>>> GetAllProjectInWorkSpace(ProjectInput input);
 
-        Task<AsanaTaskDetail> GetAllTasksInProject(AsanaTaskInput input);
+        Task<List<KeyValuePair<string, string>>> GetAllTasksInProject(AsanaTaskInput input);
 
         Task CreateTaskInProject(CreateTaskDtoRoot input);
     }

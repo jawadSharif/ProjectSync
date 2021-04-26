@@ -584,7 +584,7 @@ export class DevOpsServiceProxy {
      * @param version (optional) 
      * @return Success
      */
-    getProjectWorkItems(organization: string | null | undefined, project: string | null | undefined, token: string | null | undefined, version: string | null | undefined): Observable<WorkItemDetail[]> {
+    getProjectWorkItems(organization: string | null | undefined, project: string | null | undefined, token: string | null | undefined, version: string | null | undefined): Observable<DevOpsValue[]> {
         let url_ = this.baseUrl + "/api/services/app/DevOps/GetProjectWorkItems?";
         if (organization !== undefined)
             url_ += "Organization=" + encodeURIComponent("" + organization) + "&";
@@ -611,14 +611,14 @@ export class DevOpsServiceProxy {
                 try {
                     return this.processGetProjectWorkItems(<any>response_);
                 } catch (e) {
-                    return <Observable<WorkItemDetail[]>><any>_observableThrow(e);
+                    return <Observable<DevOpsValue[]>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<WorkItemDetail[]>><any>_observableThrow(response_);
+                return <Observable<DevOpsValue[]>><any>_observableThrow(response_);
         }));
     }
 
-    protected processGetProjectWorkItems(response: HttpResponseBase): Observable<WorkItemDetail[]> {
+    protected processGetProjectWorkItems(response: HttpResponseBase): Observable<DevOpsValue[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -632,7 +632,7 @@ export class DevOpsServiceProxy {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200.push(WorkItemDetail.fromJS(item));
+                    result200.push(DevOpsValue.fromJS(item));
             }
             return _observableOf(result200);
             }));
@@ -641,7 +641,7 @@ export class DevOpsServiceProxy {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<WorkItemDetail[]>(<any>null);
+        return _observableOf<DevOpsValue[]>(<any>null);
     }
 
     /**
@@ -2984,11 +2984,10 @@ export interface IStringTuple {
     item1: string | undefined;
 }
 
-export class WorkItemFields implements IWorkItemFields {
-    systemTitle: string | undefined;
-    systemDescription: string | undefined;
+export class DevOpsAvatar implements IDevOpsAvatar {
+    href: string | undefined;
 
-    constructor(data?: IWorkItemFields) {
+    constructor(data?: IDevOpsAvatar) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2999,44 +2998,393 @@ export class WorkItemFields implements IWorkItemFields {
 
     init(_data?: any) {
         if (_data) {
-            this.systemTitle = _data["systemTitle"];
-            this.systemDescription = _data["systemDescription"];
+            this.href = _data["href"];
         }
     }
 
-    static fromJS(data: any): WorkItemFields {
+    static fromJS(data: any): DevOpsAvatar {
         data = typeof data === 'object' ? data : {};
-        let result = new WorkItemFields();
+        let result = new DevOpsAvatar();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["systemTitle"] = this.systemTitle;
-        data["systemDescription"] = this.systemDescription;
+        data["href"] = this.href;
         return data; 
     }
 
-    clone(): WorkItemFields {
+    clone(): DevOpsAvatar {
         const json = this.toJSON();
-        let result = new WorkItemFields();
+        let result = new DevOpsAvatar();
         result.init(json);
         return result;
     }
 }
 
-export interface IWorkItemFields {
-    systemTitle: string | undefined;
-    systemDescription: string | undefined;
+export interface IDevOpsAvatar {
+    href: string | undefined;
 }
 
-export class WorkItemDetail implements IWorkItemDetail {
+export class DevOpsLinks implements IDevOpsLinks {
+    avatar: DevOpsAvatar;
+
+    constructor(data?: IDevOpsLinks) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.avatar = _data["avatar"] ? DevOpsAvatar.fromJS(_data["avatar"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): DevOpsLinks {
+        data = typeof data === 'object' ? data : {};
+        let result = new DevOpsLinks();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["avatar"] = this.avatar ? this.avatar.toJSON() : <any>undefined;
+        return data; 
+    }
+
+    clone(): DevOpsLinks {
+        const json = this.toJSON();
+        let result = new DevOpsLinks();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDevOpsLinks {
+    avatar: DevOpsAvatar;
+}
+
+export class DevOpsSystemCreatedBy implements IDevOpsSystemCreatedBy {
+    displayName: string | undefined;
+    url: string | undefined;
+    _links: DevOpsLinks;
+    id: string | undefined;
+    uniqueName: string | undefined;
+    imageUrl: string | undefined;
+    descriptor: string | undefined;
+
+    constructor(data?: IDevOpsSystemCreatedBy) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.displayName = _data["displayName"];
+            this.url = _data["url"];
+            this._links = _data["_links"] ? DevOpsLinks.fromJS(_data["_links"]) : <any>undefined;
+            this.id = _data["id"];
+            this.uniqueName = _data["uniqueName"];
+            this.imageUrl = _data["imageUrl"];
+            this.descriptor = _data["descriptor"];
+        }
+    }
+
+    static fromJS(data: any): DevOpsSystemCreatedBy {
+        data = typeof data === 'object' ? data : {};
+        let result = new DevOpsSystemCreatedBy();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["displayName"] = this.displayName;
+        data["url"] = this.url;
+        data["_links"] = this._links ? this._links.toJSON() : <any>undefined;
+        data["id"] = this.id;
+        data["uniqueName"] = this.uniqueName;
+        data["imageUrl"] = this.imageUrl;
+        data["descriptor"] = this.descriptor;
+        return data; 
+    }
+
+    clone(): DevOpsSystemCreatedBy {
+        const json = this.toJSON();
+        let result = new DevOpsSystemCreatedBy();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDevOpsSystemCreatedBy {
+    displayName: string | undefined;
+    url: string | undefined;
+    _links: DevOpsLinks;
+    id: string | undefined;
+    uniqueName: string | undefined;
+    imageUrl: string | undefined;
+    descriptor: string | undefined;
+}
+
+export class DevOpsSystemChangedBy implements IDevOpsSystemChangedBy {
+    displayName: string | undefined;
+    url: string | undefined;
+    _links: DevOpsLinks;
+    id: string | undefined;
+    uniqueName: string | undefined;
+    imageUrl: string | undefined;
+    descriptor: string | undefined;
+
+    constructor(data?: IDevOpsSystemChangedBy) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.displayName = _data["displayName"];
+            this.url = _data["url"];
+            this._links = _data["_links"] ? DevOpsLinks.fromJS(_data["_links"]) : <any>undefined;
+            this.id = _data["id"];
+            this.uniqueName = _data["uniqueName"];
+            this.imageUrl = _data["imageUrl"];
+            this.descriptor = _data["descriptor"];
+        }
+    }
+
+    static fromJS(data: any): DevOpsSystemChangedBy {
+        data = typeof data === 'object' ? data : {};
+        let result = new DevOpsSystemChangedBy();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["displayName"] = this.displayName;
+        data["url"] = this.url;
+        data["_links"] = this._links ? this._links.toJSON() : <any>undefined;
+        data["id"] = this.id;
+        data["uniqueName"] = this.uniqueName;
+        data["imageUrl"] = this.imageUrl;
+        data["descriptor"] = this.descriptor;
+        return data; 
+    }
+
+    clone(): DevOpsSystemChangedBy {
+        const json = this.toJSON();
+        let result = new DevOpsSystemChangedBy();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDevOpsSystemChangedBy {
+    displayName: string | undefined;
+    url: string | undefined;
+    _links: DevOpsLinks;
+    id: string | undefined;
+    uniqueName: string | undefined;
+    imageUrl: string | undefined;
+    descriptor: string | undefined;
+}
+
+export class DevOpsSystemAssignedTo implements IDevOpsSystemAssignedTo {
+    displayName: string | undefined;
+    url: string | undefined;
+    _links: DevOpsLinks;
+    id: string | undefined;
+    uniqueName: string | undefined;
+    imageUrl: string | undefined;
+    descriptor: string | undefined;
+
+    constructor(data?: IDevOpsSystemAssignedTo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.displayName = _data["displayName"];
+            this.url = _data["url"];
+            this._links = _data["_links"] ? DevOpsLinks.fromJS(_data["_links"]) : <any>undefined;
+            this.id = _data["id"];
+            this.uniqueName = _data["uniqueName"];
+            this.imageUrl = _data["imageUrl"];
+            this.descriptor = _data["descriptor"];
+        }
+    }
+
+    static fromJS(data: any): DevOpsSystemAssignedTo {
+        data = typeof data === 'object' ? data : {};
+        let result = new DevOpsSystemAssignedTo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["displayName"] = this.displayName;
+        data["url"] = this.url;
+        data["_links"] = this._links ? this._links.toJSON() : <any>undefined;
+        data["id"] = this.id;
+        data["uniqueName"] = this.uniqueName;
+        data["imageUrl"] = this.imageUrl;
+        data["descriptor"] = this.descriptor;
+        return data; 
+    }
+
+    clone(): DevOpsSystemAssignedTo {
+        const json = this.toJSON();
+        let result = new DevOpsSystemAssignedTo();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDevOpsSystemAssignedTo {
+    displayName: string | undefined;
+    url: string | undefined;
+    _links: DevOpsLinks;
+    id: string | undefined;
+    uniqueName: string | undefined;
+    imageUrl: string | undefined;
+    descriptor: string | undefined;
+}
+
+export class DevOpsFields implements IDevOpsFields {
+    systemAreaPath: string | undefined;
+    systemTeamProject: string | undefined;
+    systemIterationPath: string | undefined;
+    systemWorkItemType: string | undefined;
+    systemState: string | undefined;
+    systemReason: string | undefined;
+    systemCreatedDate: moment.Moment;
+    systemCreatedBy: DevOpsSystemCreatedBy;
+    systemChangedDate: moment.Moment;
+    systemChangedBy: DevOpsSystemChangedBy;
+    systemTitle: string | undefined;
+    microsoftVSTSSchedulingEffort: number;
+    weF6CB513B6E70E43499D9FC94E5BBFB784KanbanColumn: string | undefined;
+    systemDescription: string | undefined;
+    systemAssignedTo: DevOpsSystemAssignedTo;
+    microsoftVSTSSchedulingRemainingWork: number | undefined;
+    systemTags: string | undefined;
+
+    constructor(data?: IDevOpsFields) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.systemAreaPath = _data["systemAreaPath"];
+            this.systemTeamProject = _data["systemTeamProject"];
+            this.systemIterationPath = _data["systemIterationPath"];
+            this.systemWorkItemType = _data["systemWorkItemType"];
+            this.systemState = _data["systemState"];
+            this.systemReason = _data["systemReason"];
+            this.systemCreatedDate = _data["systemCreatedDate"] ? moment(_data["systemCreatedDate"].toString()) : <any>undefined;
+            this.systemCreatedBy = _data["systemCreatedBy"] ? DevOpsSystemCreatedBy.fromJS(_data["systemCreatedBy"]) : <any>undefined;
+            this.systemChangedDate = _data["systemChangedDate"] ? moment(_data["systemChangedDate"].toString()) : <any>undefined;
+            this.systemChangedBy = _data["systemChangedBy"] ? DevOpsSystemChangedBy.fromJS(_data["systemChangedBy"]) : <any>undefined;
+            this.systemTitle = _data["systemTitle"];
+            this.microsoftVSTSSchedulingEffort = _data["microsoftVSTSSchedulingEffort"];
+            this.weF6CB513B6E70E43499D9FC94E5BBFB784KanbanColumn = _data["weF6CB513B6E70E43499D9FC94E5BBFB784KanbanColumn"];
+            this.systemDescription = _data["systemDescription"];
+            this.systemAssignedTo = _data["systemAssignedTo"] ? DevOpsSystemAssignedTo.fromJS(_data["systemAssignedTo"]) : <any>undefined;
+            this.microsoftVSTSSchedulingRemainingWork = _data["microsoftVSTSSchedulingRemainingWork"];
+            this.systemTags = _data["systemTags"];
+        }
+    }
+
+    static fromJS(data: any): DevOpsFields {
+        data = typeof data === 'object' ? data : {};
+        let result = new DevOpsFields();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["systemAreaPath"] = this.systemAreaPath;
+        data["systemTeamProject"] = this.systemTeamProject;
+        data["systemIterationPath"] = this.systemIterationPath;
+        data["systemWorkItemType"] = this.systemWorkItemType;
+        data["systemState"] = this.systemState;
+        data["systemReason"] = this.systemReason;
+        data["systemCreatedDate"] = this.systemCreatedDate ? this.systemCreatedDate.toISOString() : <any>undefined;
+        data["systemCreatedBy"] = this.systemCreatedBy ? this.systemCreatedBy.toJSON() : <any>undefined;
+        data["systemChangedDate"] = this.systemChangedDate ? this.systemChangedDate.toISOString() : <any>undefined;
+        data["systemChangedBy"] = this.systemChangedBy ? this.systemChangedBy.toJSON() : <any>undefined;
+        data["systemTitle"] = this.systemTitle;
+        data["microsoftVSTSSchedulingEffort"] = this.microsoftVSTSSchedulingEffort;
+        data["weF6CB513B6E70E43499D9FC94E5BBFB784KanbanColumn"] = this.weF6CB513B6E70E43499D9FC94E5BBFB784KanbanColumn;
+        data["systemDescription"] = this.systemDescription;
+        data["systemAssignedTo"] = this.systemAssignedTo ? this.systemAssignedTo.toJSON() : <any>undefined;
+        data["microsoftVSTSSchedulingRemainingWork"] = this.microsoftVSTSSchedulingRemainingWork;
+        data["systemTags"] = this.systemTags;
+        return data; 
+    }
+
+    clone(): DevOpsFields {
+        const json = this.toJSON();
+        let result = new DevOpsFields();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDevOpsFields {
+    systemAreaPath: string | undefined;
+    systemTeamProject: string | undefined;
+    systemIterationPath: string | undefined;
+    systemWorkItemType: string | undefined;
+    systemState: string | undefined;
+    systemReason: string | undefined;
+    systemCreatedDate: moment.Moment;
+    systemCreatedBy: DevOpsSystemCreatedBy;
+    systemChangedDate: moment.Moment;
+    systemChangedBy: DevOpsSystemChangedBy;
+    systemTitle: string | undefined;
+    microsoftVSTSSchedulingEffort: number;
+    weF6CB513B6E70E43499D9FC94E5BBFB784KanbanColumn: string | undefined;
+    systemDescription: string | undefined;
+    systemAssignedTo: DevOpsSystemAssignedTo;
+    microsoftVSTSSchedulingRemainingWork: number | undefined;
+    systemTags: string | undefined;
+}
+
+export class DevOpsValue implements IDevOpsValue {
     id: number;
-    fields: WorkItemFields;
+    rev: number;
+    fields: DevOpsFields;
     url: string | undefined;
 
-    constructor(data?: IWorkItemDetail) {
+    constructor(data?: IDevOpsValue) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3048,14 +3396,15 @@ export class WorkItemDetail implements IWorkItemDetail {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.fields = _data["fields"] ? WorkItemFields.fromJS(_data["fields"]) : <any>undefined;
+            this.rev = _data["rev"];
+            this.fields = _data["fields"] ? DevOpsFields.fromJS(_data["fields"]) : <any>undefined;
             this.url = _data["url"];
         }
     }
 
-    static fromJS(data: any): WorkItemDetail {
+    static fromJS(data: any): DevOpsValue {
         data = typeof data === 'object' ? data : {};
-        let result = new WorkItemDetail();
+        let result = new DevOpsValue();
         result.init(data);
         return result;
     }
@@ -3063,22 +3412,24 @@ export class WorkItemDetail implements IWorkItemDetail {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["rev"] = this.rev;
         data["fields"] = this.fields ? this.fields.toJSON() : <any>undefined;
         data["url"] = this.url;
         return data; 
     }
 
-    clone(): WorkItemDetail {
+    clone(): DevOpsValue {
         const json = this.toJSON();
-        let result = new WorkItemDetail();
+        let result = new DevOpsValue();
         result.init(json);
         return result;
     }
 }
 
-export interface IWorkItemDetail {
+export interface IDevOpsValue {
     id: number;
-    fields: WorkItemFields;
+    rev: number;
+    fields: DevOpsFields;
     url: string | undefined;
 }
 

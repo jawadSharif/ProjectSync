@@ -23,10 +23,15 @@ namespace MyCompany.AsanaProjects
             return await _asanaManager.GetAllProjectInWorkSpace(input);
         }
 
-        public async Task<AsanaTaskDetail> GetAllTasksInProject(AsanaTaskInput input)
+        public async Task<List<KeyValuePair<string, string>>> GetAllTasksInProject(AsanaTaskInput input)
         {
             var result =  await _asanaManager.GetAllTasksInProject(input);
-            return result;
+            var list = new List<KeyValuePair<string, string>>();
+            result.data.ForEach(a =>
+            {
+                list.Add(new KeyValuePair<string, string>(a.gid, a.name));
+            });
+            return list;
         }
 
         public async Task CreateTaskInProject(CreateTaskDtoRoot input)

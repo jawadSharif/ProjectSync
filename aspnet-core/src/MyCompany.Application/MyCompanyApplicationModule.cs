@@ -17,7 +17,7 @@ namespace MyCompany
             Configuration.Authorization.Providers.Add<MyCompanyAuthorizationProvider>();
             Configuration.Modules.AbpAutoMapper().Configurators.Add(config =>
             {
-                config.CreateMap<ProjectDto, Project>();
+                config.CreateMap<ProjectDto, Project>().ReverseMap();
             });
         }
 
